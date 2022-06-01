@@ -1,33 +1,26 @@
 package com.stream.myvoa;
 
-import static com.stream.myvoa.utils.AndroidBarUtils.setBarDarkMode;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.stream.myvoa.bean.LRCObject;
 import com.stream.myvoa.bean.VOAObject;
 import com.stream.myvoa.utils.LRCLoader;
 
 import java.io.IOException;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -42,6 +35,8 @@ public class PlayActivity extends AppCompatActivity {
     private Timer mTimer;
     private TimerTask mTask;
     float posX,posY,curPosX,curPosY;
+    boolean moved;
+    long firstClick, secondClick, count=0; //处理双击事件
 
     final static String TAG = "PlayActivity";
 
@@ -91,8 +86,25 @@ public class PlayActivity extends AppCompatActivity {
                     case MotionEvent.ACTION_DOWN:
                         posX = event.getX();
                         posY = event.getY();
+                        count++;
+                        if(count == 1){
+                            firstClick = System.currentTimeMillis();
+                        }else if(count == 2){
+                            secondClick = System.currentTimeMillis();
+                            count = 0;
+                            if(secondClick - firstClick < 300){ //若两次点击之间的间隔小于300ms，视为双击
+                                if(mediaPlayer.isPlaying()){
+                                    mediaPlayer.pause();
+                                }
+                                else{
+                                    mediaPlayer.start();
+                                }
+                            }
+                        }
                         break;
                     case MotionEvent.ACTION_MOVE:
+                        moved = true;
+                        //保证坐标是本次滑动后才得到的，而非上次滑动的数据；否则滑动后再点击一下也会切换
                         curPosX = event.getX();
                         curPosY = event.getY();
                         break;
@@ -119,6 +131,7 @@ public class PlayActivity extends AppCompatActivity {
                                 Toast.makeText(PlayActivity.this,"已经是第一句啦~",Toast.LENGTH_SHORT).show();
                             }
                         }
+                        moved = false;
 //                        if ((curPosY - posY > 0) && (Math.abs(curPosY - posY) > 25)){
 //                            Log.v(TAG,"向下滑动");
 //                        }
