@@ -17,3 +17,7 @@
 ### 资源列表
 
 <img src="https://github.com/StreamAzure/MyVOA/blob/main/demo2.jpg" alt="10Screenshot_2022-06-01-22-43-47-510_com.stream.myv" style="zoom:40%;" />
+
+## 致谢
+
+感谢靖佬的Go爬虫技术支持~
